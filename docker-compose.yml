@@ -1,0 +1,41 @@
+version: '2'
+services:
+  influxdb:
+    image: influxdb:1.2-alpine
+    container_name: influxdb
+    ports:
+      - "8082:8083"
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_ADMIN_ENABLED=true
+
+  chronograf:
+    depends_on:
+      - influxdb
+    image: chronograf:alpine
+    container_name: chronograf
+    ports:
+      - "8888:8888"
+    volumes:
+      - chronograf_data:/var/lib/chronograf
+   
+  grafana:
+    depends_on:
+      - influxdb
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=12345600
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_INSTALL_PLUGINS=natel-discrete-panel,grafana-clock-panel,briangann-gauge-panel,grafana-piechart-panel,neocat-cal-heatmap-panel
+
+volumes:
+    influxdb_data:
+    grafana_data:
+    chronograf_data:
